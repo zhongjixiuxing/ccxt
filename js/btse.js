@@ -1663,12 +1663,13 @@ module.exports = class btse extends Exchange {
         const request = {
             'asset': currency['id'],
             'amount': amount,
-            'to': toAccount, // internal account id
+            'toUser': toAccount, // internal account id
         };
         const toUserMail = this.safeString (params, 'toUserMail');
-        if (toUserMail) {
+        if (!toUserMail) {
             throw new ArgumentsRequired (this.id + ' transfer requires a `toUserMail` argument');
         }
+        request['toUserMail'] = toUserMail;
         return await this.spotPrivatePostUserWalletTransfer (this.extend (request, params));
     }
 
