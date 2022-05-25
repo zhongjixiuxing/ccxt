@@ -1390,7 +1390,7 @@ module.exports = class btse extends Exchange {
             'symbol': market['id'],
         };
         if (id !== undefined) {
-            request['orderId'] = id;
+            request['orderID'] = id;
         }
         const [ marketType, query ] = this.handleMarketTypeAndParams ('cancelOrder', market, params);
         const method = this.getSupportedMapping (marketType, {
