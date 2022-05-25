@@ -41,6 +41,7 @@ module.exports = class btse extends Exchange {
                 'fetchOpenInterestHistory': false,
                 'fetchOpenOrders': true,
                 'fetchOrder': false,
+                'editOrder': true,
                 'fetchOrderBook': true,
                 'fetchOrders': false,
                 'fetchPositions': false,
@@ -1289,6 +1290,38 @@ module.exports = class btse extends Exchange {
         return this.parseTrades (response, market, since, limit);
     }
 
+    async editOrder (id, symbol, type, side, amount, price = undefined, params = {}) {
+        if (symbol === undefined) {
+            throw new ArgumentsRequired (id + ' editOrder requires a `symbol` argument');
+        }
+        await this.loadMarkets ();
+        const market = this.market (symbol);
+        if (!market) {
+            throw new ArgumentsRequired (id + ' symbol not found market');
+        }
+        const request = {
+            'orderID': id,
+            'type': 'ALL'
+        };
+        if (price !== undefined) {
+            request['orderPrice'] = parseFloat(this.priceToPrecision (symbol, price));
+            request['value'] = request['orderPrice']
+        }
+        if (amount !== undefined) {
+            request['orderSize'] = parseFloat(this.amountToPrecision (symbol, amount));
+        }
+        const query = this.handleMarketTypeAndParams ('editOrder', market, request)[1];
+        const marketType = market['type'];
+        const method = this.getSupportedMapping (marketType, {
+            'spot': 'spotPrivatePutOrder',
+            'future': 'futurePrivatePutOrder',
+            'swap': 'futurePrivatePutOrder',
+        });
+        const response = await this[method] (this.extend (request, query));
+        const data = this.safeValue (response, 'data', {});
+        return this.parseOrder (data, market);
+    }
+
     async fetchTradingFee (symbol, params = {}) {
         await this.loadMarkets ();
         const market = this.market (symbol);
@@ -1588,7 +1621,7 @@ module.exports = class btse extends Exchange {
         const accessibility = api[1];
         const type = api[0];
         let url = this.urls['api'][type] + '/' + path;
-        if (method !== 'POST') {
+        if (!(method === 'POST' || method === 'PUT')) {
             if (Object.keys (params).length) {
                 url += '?' + this.urlencode (params);
             }
@@ -1596,7 +1629,7 @@ module.exports = class btse extends Exchange {
         if (accessibility === 'private') {
             this.checkRequiredCredentials ();
             headers = {};
-            if (method === 'POST') {
+            if (method === 'POST' || method === 'PUT') {
                 body = this.json (params);
                 headers['Content-Type'] = 'application/json';
             }
