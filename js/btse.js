@@ -1302,7 +1302,7 @@ module.exports = class btse extends Exchange {
         const request = {
             'orderID': id,
             'type': 'ALL',
-            'symbol': market.id,
+            'symbol': market['id'],
         };
         if (price !== undefined) {
             request['orderPrice'] = parseFloat (this.priceToPrecision (symbol, price));
