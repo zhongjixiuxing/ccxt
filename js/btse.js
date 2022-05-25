@@ -1301,14 +1301,14 @@ module.exports = class btse extends Exchange {
         }
         const request = {
             'orderID': id,
-            'type': 'ALL'
+            'type': 'ALL',
         };
         if (price !== undefined) {
-            request['orderPrice'] = parseFloat(this.priceToPrecision (symbol, price));
-            request['value'] = request['orderPrice']
+            request['orderPrice'] = parseFloat (this.priceToPrecision (symbol, price));
+            request['value'] = request['orderPrice'];
         }
         if (amount !== undefined) {
-            request['orderSize'] = parseFloat(this.amountToPrecision (symbol, amount));
+            request['orderSize'] = parseFloat (this.amountToPrecision (symbol, amount));
         }
         const query = this.handleMarketTypeAndParams ('editOrder', market, request)[1];
         const marketType = market['type'];
