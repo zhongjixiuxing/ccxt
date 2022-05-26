@@ -1674,7 +1674,22 @@ module.exports = class btse extends Exchange {
             throw new ArgumentsRequired (this.id + ' transfer requires a `toUserMail` argument');
         }
         request['toUserMail'] = toUserMail;
-        return await this.spotPrivatePostUserWalletTransfer (this.extend (request, params));
+        const resp = await this.spotPrivatePostUserWalletTransfer (this.extend (request, params));
+        if (!resp || resp['amount'] === undefined) {
+            throw new BadRequest (' transfer ' + amount + ' ' + currency['id'] + ' to ' + toAccount + 'failed');
+        }
+        const result = {
+            'info': resp,
+            'id': undefined,
+            'timestamp': undefined,
+            'datetime': undefined,
+            'currency': currency['id'],
+            'amount': amount,
+            'fromAccount': undefined,
+            'toAccount': toAccount,
+            'status': 'ok',
+        };
+        return result;
     }
 
     async withdraw (code, amount, address, tag = undefined, params = {}) {
