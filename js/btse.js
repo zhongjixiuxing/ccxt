@@ -1319,7 +1319,11 @@ module.exports = class btse extends Exchange {
             'swap': 'futurePrivatePutOrder',
         });
         const response = await this[method] (this.extend (request, query));
-        return this.parseOrder (response[0], market);
+        if (!response[0] && !response[0]['orderID']) {
+            throw new BadRequest (id + ' edit order failed.');
+        }
+        const lastestOrdersInfo = await this.fetchOpenOrders (symbol, undefined, undefined, { 'orderId': id });
+        return lastestOrdersInfo[0];
     }
 
     async fetchTradingFee (symbol, params = {}) {
