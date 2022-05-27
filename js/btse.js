@@ -1731,7 +1731,7 @@ module.exports = class btse extends Exchange {
         request['toUserMail'] = toUserMail;
         const resp = await this.spotPrivatePostUserWalletTransfer (this.extend (request, params));
         if (!resp || resp['amount'] === undefined) {
-            throw new BadRequest (' transfer ' + amount + ' ' + currency['id'] + ' to ' + toAccount + 'failed');
+            throw new BadRequest (' transfer ' + `${amount}` + ' ' + currency['id'] + ' to ' + toAccount + 'failed');
         }
         const result = {
             'info': resp,
@@ -1777,7 +1777,7 @@ module.exports = class btse extends Exchange {
         // };
         const response = await this.spotPrivatePostUserWalletWithdraw (this.extend (request, params));
         if (!response || response['withdrawId'] === undefined) {
-            throw new BadRequest ('withdraw ' + amount + ' ' + currency['id'] + ' to ' + address + 'failed.');
+            throw new BadRequest ('withdraw ' + `${amount}` + ' ' + currency['id'] + ' to ' + address + 'failed.');
         }
         //
         //  {
