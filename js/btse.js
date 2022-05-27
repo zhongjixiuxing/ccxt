@@ -1406,42 +1406,6 @@ module.exports = class btse extends Exchange {
         return lastestOrdersInfo[0];
     }
 
-    async editOrder (id, symbol, type, side, amount, price = undefined, params = {}) {
-        if (symbol === undefined) {
-            throw new ArgumentsRequired (id + ' editOrder requires a `symbol` argument');
-        }
-        await this.loadMarkets ();
-        const market = this.market (symbol);
-        if (!market) {
-            throw new ArgumentsRequired (id + ' symbol not found market');
-        }
-        const request = {
-            'orderID': id,
-            'type': 'ALL',
-            'symbol': market['id'],
-        };
-        if (price !== undefined) {
-            request['orderPrice'] = parseFloat (this.priceToPrecision (symbol, price));
-            request['value'] = request['orderPrice'];
-        }
-        if (amount !== undefined) {
-            request['orderSize'] = parseFloat (this.amountToPrecision (symbol, amount));
-        }
-        const query = this.handleMarketTypeAndParams ('editOrder', market, request)[1];
-        const marketType = market['type'];
-        const method = this.getSupportedMapping (marketType, {
-            'spot': 'spotPrivatePutOrder',
-            'future': 'futurePrivatePutOrder',
-            'swap': 'futurePrivatePutOrder',
-        });
-        const response = await this[method] (this.extend (request, query));
-        if (!response[0] && !response[0]['orderID']) {
-            throw new BadRequest (id + ' edit order failed.');
-        }
-        const lastestOrdersInfo = await this.fetchOpenOrders (symbol, undefined, undefined, { 'orderId': id });
-        return lastestOrdersInfo[0];
-    }
-
     async fetchTradingFee (symbol, params = {}) {
         await this.loadMarkets ();
         const market = this.market (symbol);
